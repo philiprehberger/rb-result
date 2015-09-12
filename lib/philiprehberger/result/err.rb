@@ -52,6 +52,25 @@ module Philiprehberger
         Err.new(block.call(@error))
       end
 
+      # Recover from an error by calling the block.
+      # The block should return a Result.
+      #
+      # @yield [error] the current error
+      # @return [Ok, Err] the result of the block
+      def or_else(&block)
+        block.call(@error)
+      end
+
+      # Alias for flat_map (no-op on Err, returns self).
+      alias and_then flat_map
+
+      # Serialize to a hash.
+      #
+      # @return [Hash]
+      def to_h
+        { err: @error }
+      end
+
       # Pattern matching support via `in Err[error]`.
       #
       # @return [Array] deconstructed error

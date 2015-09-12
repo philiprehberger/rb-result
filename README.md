@@ -80,6 +80,29 @@ result = Philiprehberger::Result.try { Integer("abc") }
 result = Philiprehberger::Result.try(IOError) { File.read("missing") }
 ```
 
+### Error Recovery
+
+```ruby
+result = Philiprehberger::Result.err("not found")
+
+# Recover with or_else
+recovered = result.or_else { |e| Philiprehberger::Result.ok("default") }
+# => Ok("default")
+
+# Chain with and_then (alias for flat_map)
+Philiprehberger::Result.ok(5)
+  .and_then { |v| Philiprehberger::Result.ok(v * 2) }
+  .and_then { |v| Philiprehberger::Result.ok(v + 1) }
+# => Ok(11)
+```
+
+### Serialization
+
+```ruby
+Philiprehberger::Result.ok(42).to_h    # => { ok: 42 }
+Philiprehberger::Result.err("fail").to_h # => { err: "fail" }
+```
+
 ### Pattern Matching
 
 ```ruby
@@ -105,6 +128,10 @@ end
 | `Err#map_err { \|e\| ... }` | Transform the error value |
 | `Err#unwrap!` | Raise UnwrapError |
 | `Err#unwrap_or(default)` | Return the default |
+| `Ok#or_else { \|e\| ... }` | Return self (no-op on Ok) |
+| `Err#or_else { \|e\| ... }` | Call block with error for recovery |
+| `#and_then { \|v\| ... }` | Alias for `flat_map` |
+| `#to_h` | Serialize to `{ ok: value }` or `{ err: error }` |
 
 ## Development
 
