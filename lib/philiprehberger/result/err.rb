@@ -4,6 +4,9 @@ module Philiprehberger
   module Result
     # Represents a failed result containing an error.
     class Err
+      include Tappable
+      include Filterable
+
       attr_reader :error
 
       # @param error the error value
