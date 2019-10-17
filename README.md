@@ -4,7 +4,7 @@
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-result.svg)](https://rubygems.org/gems/philiprehberger-result)
 [![License](https://img.shields.io/github/license/philiprehberger/rb-result)](LICENSE)
 
-Result type with Ok/Err, map, flat_map, filter, tap, and pattern matching for Ruby.
+Result type with Ok/Err, map, flat_map, and pattern matching
 
 ## Requirements
 
