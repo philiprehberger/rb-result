@@ -196,6 +196,22 @@ RSpec.describe Philiprehberger::Result::Ok do
     end
   end
 
+  describe "#to_s" do
+    it "returns a readable representation" do
+      expect(ok.to_s).to eq("Ok(42)")
+    end
+
+    it "handles nil value" do
+      expect(described_class.new(nil).to_s).to eq("Ok(nil)")
+    end
+  end
+
+  describe "#inspect" do
+    it "is aliased to to_s" do
+      expect(ok.inspect).to eq(ok.to_s)
+    end
+  end
+
   describe "#==" do
     it "is equal to another Ok with the same value" do
       expect(ok).to eq(described_class.new(42))
@@ -204,11 +220,39 @@ RSpec.describe Philiprehberger::Result::Ok do
     it "is not equal to an Ok with a different value" do
       expect(ok).not_to eq(described_class.new(99))
     end
+
+    it "is not equal to an Err with the same inner value" do
+      expect(described_class.new("x")).not_to eq(Philiprehberger::Result::Err.new("x"))
+    end
+
+    it "is not equal to a non-Result object with the same value" do
+      expect(ok).not_to eq(42)
+    end
   end
 
-  describe "#to_s" do
-    it "returns a readable representation" do
-      expect(ok.to_s).to eq("Ok(42)")
+  describe "nil value" do
+    subject(:ok_nil) { described_class.new(nil) }
+
+    it "stores nil as a valid value" do
+      expect(ok_nil.value).to be_nil
+      expect(ok_nil.ok?).to be true
+    end
+
+    it "maps over nil" do
+      result = ok_nil.map { |v| v.nil? ? "was nil" : "not nil" }
+      expect(result).to eq(described_class.new("was nil"))
+    end
+
+    it "unwraps nil" do
+      expect(ok_nil.unwrap!).to be_nil
+    end
+
+    it "returns nil from unwrap_or instead of default" do
+      expect(ok_nil.unwrap_or("default")).to be_nil
+    end
+
+    it "serializes nil to hash" do
+      expect(ok_nil.to_h).to eq({ ok: nil })
     end
   end
 
@@ -225,6 +269,47 @@ RSpec.describe Philiprehberger::Result::Ok do
       in { value: v }
         expect(v).to eq(42)
       end
+    end
+
+    it "distinguishes Ok from Err in a case expression" do
+      matched = case ok
+                in Philiprehberger::Result::Ok[value]
+                  "ok:#{value}"
+                in Philiprehberger::Result::Err[error]
+                  "err:#{error}"
+                end
+      expect(matched).to eq("ok:42")
+    end
+  end
+
+  describe "#flat_map returning Err" do
+    it "converts Ok to Err when flat_map block returns Err" do
+      result = ok.flat_map { |_v| Philiprehberger::Result::Err.new("went wrong") }
+      expect(result).to be_a(Philiprehberger::Result::Err)
+      expect(result.error).to eq("went wrong")
+    end
+  end
+
+  describe "#filter with nil value" do
+    it "evaluates predicate against nil" do
+      ok_nil = described_class.new(nil)
+      result = ok_nil.filter(-> { "was nil" }, &:nil?)
+      expect(result).to equal(ok_nil)
+    end
+
+    it "converts to Err when nil fails predicate" do
+      ok_nil = described_class.new(nil)
+      result = ok_nil.filter(-> { "expected non-nil" }) { |v| !v.nil? }
+      expect(result).to eq(Philiprehberger::Result::Err.new("expected non-nil"))
+    end
+  end
+
+  describe "#tap_ok chaining" do
+    it "allows chaining tap_ok with map" do
+      log = []
+      result = ok.tap_ok { |v| log << v }.map { |v| v + 1 }.tap_ok { |v| log << v }
+      expect(result).to eq(described_class.new(43))
+      expect(log).to eq([42, 43])
     end
   end
 end
@@ -248,12 +333,6 @@ RSpec.describe Philiprehberger::Result::Err do
     it "returns self" do
       result = err.flat_map { |v| Philiprehberger::Result::Ok.new(v) }
       expect(result).to equal(err)
-    end
-  end
-
-  describe "#unwrap!" do
-    it "raises UnwrapError" do
-      expect { err.unwrap! }.to raise_error(Philiprehberger::Result::UnwrapError)
     end
   end
 
@@ -336,11 +415,83 @@ RSpec.describe Philiprehberger::Result::Err do
     it "is equal to another Err with the same error" do
       expect(err).to eq(described_class.new("not found"))
     end
+
+    it "is not equal to an Err with a different error" do
+      expect(err).not_to eq(described_class.new("other error"))
+    end
+
+    it "is not equal to an Ok with the same inner value" do
+      expect(described_class.new("x")).not_to eq(Philiprehberger::Result::Ok.new("x"))
+    end
+
+    it "is not equal to a non-Result object with the same value" do
+      expect(err).not_to eq("not found")
+    end
   end
 
   describe "#to_s" do
     it "returns a readable representation" do
       expect(err.to_s).to eq('Err("not found")')
+    end
+
+    it "handles nil error" do
+      expect(described_class.new(nil).to_s).to eq("Err(nil)")
+    end
+  end
+
+  describe "#inspect" do
+    it "is aliased to to_s" do
+      expect(err.inspect).to eq(err.to_s)
+    end
+  end
+
+  describe "#unwrap!" do
+    it "raises UnwrapError" do
+      expect { err.unwrap! }.to raise_error(Philiprehberger::Result::UnwrapError)
+    end
+
+    it "includes the error value in the exception message" do
+      expect { err.unwrap! }.to raise_error(/not found/)
+    end
+  end
+
+  describe "nil error" do
+    subject(:err_nil) { described_class.new(nil) }
+
+    it "stores nil as a valid error" do
+      expect(err_nil.error).to be_nil
+      expect(err_nil.err?).to be true
+    end
+
+    it "maps over nil error" do
+      result = err_nil.map_err { |e| e.nil? ? "was nil" : "not nil" }
+      expect(result).to eq(described_class.new("was nil"))
+    end
+
+    it "serializes nil error to hash" do
+      expect(err_nil.to_h).to eq({ err: nil })
+    end
+
+    it "unwrap_or returns default when error is nil" do
+      expect(err_nil.unwrap_or("fallback")).to eq("fallback")
+    end
+  end
+
+  describe "#or_else chaining" do
+    it "chains multiple or_else calls until recovery succeeds" do
+      result = err
+        .or_else { |_e| described_class.new("still failing") }
+        .or_else { |_e| Philiprehberger::Result::Ok.new("recovered") }
+      expect(result).to eq(Philiprehberger::Result::Ok.new("recovered"))
+    end
+  end
+
+  describe "#tap_err chaining" do
+    it "allows chaining tap_err with map_err" do
+      log = []
+      result = err.tap_err { |e| log << e }.map_err(&:upcase).tap_err { |e| log << e }
+      expect(result).to eq(described_class.new("NOT FOUND"))
+      expect(log).to eq(["not found", "NOT FOUND"])
     end
   end
 
@@ -358,5 +509,59 @@ RSpec.describe Philiprehberger::Result::Err do
         expect(e).to eq("not found")
       end
     end
+
+    it "distinguishes Err from Ok in a case expression" do
+      matched = case err
+                in Philiprehberger::Result::Ok[value]
+                  "ok:#{value}"
+                in Philiprehberger::Result::Err[error]
+                  "err:#{error}"
+                end
+      expect(matched).to eq("err:not found")
+    end
+  end
+end
+
+RSpec.describe "monadic composition" do
+  let(:parse_int) do
+    ->(str) do
+      Integer(str)
+      Philiprehberger::Result::Ok.new(Integer(str))
+    rescue ArgumentError
+      Philiprehberger::Result::Err.new("not a number: #{str}")
+    end
+  end
+
+  let(:safe_div) do
+    ->(a, b) do
+      return Philiprehberger::Result::Err.new("division by zero") if b.zero?
+
+      Philiprehberger::Result::Ok.new(a / b)
+    end
+  end
+
+  it "composes parse and divide via flat_map chain" do
+    result = parse_int.call("10")
+      .flat_map { |n| safe_div.call(n, 2) }
+    expect(result).to eq(Philiprehberger::Result::Ok.new(5))
+  end
+
+  it "short-circuits on parse failure" do
+    result = parse_int.call("abc")
+      .flat_map { |n| safe_div.call(n, 2) }
+    expect(result).to eq(Philiprehberger::Result::Err.new("not a number: abc"))
+  end
+
+  it "short-circuits on division by zero" do
+    result = parse_int.call("10")
+      .flat_map { |n| safe_div.call(n, 0) }
+    expect(result).to eq(Philiprehberger::Result::Err.new("division by zero"))
+  end
+
+  it "recovers from error with or_else then continues with flat_map" do
+    result = parse_int.call("abc")
+      .or_else { |_e| Philiprehberger::Result::Ok.new(0) }
+      .flat_map { |n| safe_div.call(n + 10, 2) }
+    expect(result).to eq(Philiprehberger::Result::Ok.new(5))
   end
 end
