@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "result/version"
-require_relative "result/tappable"
-require_relative "result/filterable"
-require_relative "result/ok"
-require_relative "result/err"
+require_relative 'result/version'
+require_relative 'result/tappable'
+require_relative 'result/filterable'
+require_relative 'result/ok'
+require_relative 'result/err'
 
 module Philiprehberger
   module Result
