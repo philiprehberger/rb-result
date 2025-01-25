@@ -50,5 +50,14 @@ module Philiprehberger
       end
       Ok.new(values)
     end
+
+    # Return the first Ok result, or Err with all errors if all fail
+    #
+    # @param results [Array<Ok, Err>] results to check
+    # @return [Ok, Err] first Ok, or Err with array of all errors
+    def self.any(results)
+      results.each { |r| return r if r.ok? }
+      err(results.select(&:err?).map { |r| r.instance_variable_get(:@error) })
+    end
   end
 end

@@ -146,6 +146,29 @@ Philiprehberger::Result.ok(42).to_h    # => { ok: 42 }
 Philiprehberger::Result.err("fail").to_h # => { err: "fail" }
 ```
 
+### First Success with `any`
+
+```ruby
+results = [Result.err("timeout"), Result.ok(42), Result.ok(99)]
+Result.any(results).unwrap!  # => 42
+```
+
+### Combining with `zip`
+
+```ruby
+a = Result.ok(1)
+b = Result.ok(2)
+a.zip(b).unwrap!  # => [1, 2]
+```
+
+### Typed Recovery
+
+```ruby
+Result.err(ArgumentError.new("bad"))
+  .recover(ArgumentError) { |e| "default" }
+  .unwrap!  # => "default"
+```
+
 ### Pattern Matching
 
 ```ruby
@@ -178,6 +201,9 @@ end
 | `Ok#or_else { \|e\| ... }` | Return self (no-op on Ok) |
 | `Err#or_else { \|e\| ... }` | Call block with error for recovery |
 | `#and_then { \|v\| ... }` | Alias for `flat_map` |
+| `Result.any(results)` | First Ok, or Err with all errors |
+| `#zip(other)` | Combine two Ok results into Ok([a, b]) |
+| `#recover(error_class) { block }` | Recover from specific error types |
 | `#to_h` | Serialize to `{ ok: value }` or `{ err: error }` |
 
 ## Development

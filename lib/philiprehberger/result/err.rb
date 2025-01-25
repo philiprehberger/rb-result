@@ -67,6 +67,21 @@ module Philiprehberger
       # Alias for flat_map (no-op on Err, returns self).
       alias and_then flat_map
 
+      # Zip is a no-op on Err
+      def zip(_other)
+        self
+      end
+
+      # Recover from specific error types
+      def recover(error_class = nil)
+        return self if error_class && !@error.is_a?(error_class)
+
+        result = yield @error
+        Result.ok(result)
+      rescue StandardError => e
+        Result.err(e)
+      end
+
       # Serialize to a hash.
       #
       # @return [Hash]

@@ -65,6 +65,18 @@ module Philiprehberger
       # Alias for flat_map (Rust convention).
       alias and_then flat_map
 
+      # Combine two Ok results into Ok([a, b])
+      def zip(other)
+        return other if other.err?
+
+        Result.ok([@value, other.instance_variable_get(:@value)])
+      end
+
+      # Recovery is a no-op on Ok
+      def recover(_error_class = nil)
+        self
+      end
+
       # Serialize to a hash.
       #
       # @return [Hash]

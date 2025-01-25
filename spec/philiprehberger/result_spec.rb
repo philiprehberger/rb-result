@@ -568,3 +568,68 @@ end
     expect(result).to eq(Philiprehberger::Result::Ok.new(5))
   end
 end
+
+RSpec.describe Philiprehberger::Result do
+  describe '.any' do
+    it 'returns the first Ok' do
+      results = [described_class.err('a'), described_class.ok(1), described_class.ok(2)]
+      expect(described_class.any(results).unwrap!).to eq(1)
+    end
+
+    it 'returns Err with all errors when all fail' do
+      results = [described_class.err('a'), described_class.err('b')]
+      result = described_class.any(results)
+      expect(result.err?).to be true
+    end
+
+    it 'returns first Ok immediately' do
+      results = [described_class.ok(42)]
+      expect(described_class.any(results).unwrap!).to eq(42)
+    end
+  end
+
+  describe '#zip' do
+    it 'combines two Ok values' do
+      a = described_class.ok(1)
+      b = described_class.ok(2)
+      result = a.zip(b)
+      expect(result.ok?).to be true
+      expect(result.unwrap!).to eq([1, 2])
+    end
+
+    it 'returns Err if first is Err' do
+      a = described_class.err('fail')
+      b = described_class.ok(2)
+      expect(a.zip(b).err?).to be true
+    end
+
+    it 'returns Err if second is Err' do
+      a = described_class.ok(1)
+      b = described_class.err('fail')
+      expect(a.zip(b).err?).to be true
+    end
+  end
+
+  describe '#recover' do
+    it 'is no-op on Ok' do
+      result = described_class.ok(42).recover { |_| 0 }
+      expect(result.unwrap!).to eq(42)
+    end
+
+    it 'recovers from Err' do
+      result = described_class.err(StandardError.new('boom')).recover { |e| "fixed: #{e.message}" }
+      expect(result.ok?).to be true
+      expect(result.unwrap!).to eq('fixed: boom')
+    end
+
+    it 'filters by error class' do
+      result = described_class.err(ArgumentError.new('bad')).recover(TypeError) { |_| 'fixed' }
+      expect(result.err?).to be true
+    end
+
+    it 'recovers when error class matches' do
+      result = described_class.err(ArgumentError.new('bad')).recover(ArgumentError) { |_| 'fixed' }
+      expect(result.ok?).to be true
+    end
+  end
+end
