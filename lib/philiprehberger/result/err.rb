@@ -47,6 +47,11 @@ module Philiprehberger
         raise UnwrapError, "Called unwrap! on Err(#{@error.inspect})"
       end
 
+      # Return the error value.
+      #
+      # @return the error value
+      def unwrap_err! = @error
+
       # Transform the error value.
       #
       # @yield [error] the current error
@@ -70,6 +75,14 @@ module Philiprehberger
       # Zip is a no-op on Err
       def zip(_other)
         self
+      end
+
+      # Return the default since there is no value to map.
+      #
+      # @param default the fallback value
+      # @return the default
+      def map_or(default, &)
+        default
       end
 
       # Recover from specific error types

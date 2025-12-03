@@ -51,6 +51,17 @@ module Philiprehberger
       Ok.new(values)
     end
 
+    # Flatten a nested Result. Ok(Ok(v)) becomes Ok(v), Ok(Err(e)) becomes Err(e).
+    #
+    # @param result [Ok, Err] the result to flatten
+    # @return [Ok, Err] the flattened result
+    def self.flatten(result)
+      return result if result.err?
+      return result.value if result.value.is_a?(Ok) || result.value.is_a?(Err)
+
+      result
+    end
+
     # Return the first Ok result, or Err with all errors if all fail
     #
     # @param results [Array<Ok, Err>] results to check
