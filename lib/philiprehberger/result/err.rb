@@ -75,7 +75,7 @@ module Philiprehberger
         "Err(#{@error.inspect})"
       end
 
-      alias_method :inspect, :to_s
+      alias inspect to_s
     end
   end
 end

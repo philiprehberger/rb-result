@@ -38,7 +38,7 @@ RSpec.describe Philiprehberger::Result do
 
     it "catches only specified exceptions" do
       expect do
-        described_class.try(ArgumentError) { raise RuntimeError, "wrong" }
+        described_class.try(ArgumentError) { raise "wrong" }
       end.to raise_error(RuntimeError)
     end
   end
@@ -153,7 +153,7 @@ RSpec.describe Philiprehberger::Result::Err do
 
   describe "#map_err" do
     it "transforms the error" do
-      result = err.map_err { |e| e.upcase }
+      result = err.map_err(&:upcase)
       expect(result).to eq(described_class.new("NOT FOUND"))
     end
   end

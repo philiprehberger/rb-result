@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Result type with Ok/Err, map, flat_map, and pattern matching"
   spec.description   = "A lightweight Result type for Ruby with Ok and Err variants, " \
-                        "monadic map/flat_map operations, unwrap helpers, and Ruby 3.1+ " \
-                        "pattern matching support."
+                       "monadic map/flat_map operations, unwrap helpers, and Ruby 3.1+ " \
+                       "pattern matching support."
   spec.homepage      = "https://github.com/philiprehberger/rb-result"
   spec.license       = "MIT"
 
