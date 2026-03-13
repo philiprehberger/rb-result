@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-12
+
+### Added
+- `or_else` method on Ok and Err for error recovery chains
+- `and_then` alias for `flat_map` (Rust/functional convention)
+- `to_h` method on Ok and Err for hash serialization
+- Tests for method chaining and multi-exception `Result.try`
+
 ## [0.1.0] - 2026-03-10
 
 ### Added

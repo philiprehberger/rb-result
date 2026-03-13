@@ -52,6 +52,23 @@ module Philiprehberger
         self
       end
 
+      # Return self (no error to recover from).
+      #
+      # @return [Ok] self
+      def or_else
+        self
+      end
+
+      # Alias for flat_map (Rust convention).
+      alias and_then flat_map
+
+      # Serialize to a hash.
+      #
+      # @return [Hash]
+      def to_h
+        { ok: @value }
+      end
+
       # Pattern matching support via `in Ok[value]`.
       #
       # @return [Array] deconstructed value
