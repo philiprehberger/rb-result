@@ -49,6 +49,31 @@ RSpec.describe Philiprehberger::Result do
     end
   end
 
+  describe ".all" do
+    it "returns Ok with array of values when all are Ok" do
+      results = [described_class.ok(1), described_class.ok(2), described_class.ok(3)]
+      result = described_class.all(results)
+      expect(result).to eq(Philiprehberger::Result::Ok.new([1, 2, 3]))
+    end
+
+    it "returns Err with first error when any is Err" do
+      results = [described_class.ok(1), described_class.err("fail"), described_class.ok(3)]
+      result = described_class.all(results)
+      expect(result).to eq(Philiprehberger::Result::Err.new("fail"))
+    end
+
+    it "returns first Err when multiple are Err" do
+      results = [described_class.err("first"), described_class.err("second")]
+      result = described_class.all(results)
+      expect(result).to eq(Philiprehberger::Result::Err.new("first"))
+    end
+
+    it "returns Ok with empty array for empty input" do
+      result = described_class.all([])
+      expect(result).to eq(Philiprehberger::Result::Ok.new([]))
+    end
+  end
+
   describe "chaining" do
     it "chains multiple map calls" do
       result = described_class.ok(2).map { |v| v * 3 }.map { |v| v + 1 }
@@ -108,6 +133,44 @@ RSpec.describe Philiprehberger::Result::Ok do
   describe "#map_err" do
     it "returns self" do
       expect(ok.map_err { |e| e }).to equal(ok)
+    end
+  end
+
+  describe "#tap_ok" do
+    it "executes the block with the value" do
+      tapped = nil
+      ok.tap_ok { |v| tapped = v }
+      expect(tapped).to eq(42)
+    end
+
+    it "returns self" do
+      result = ok.tap_ok { |_v| nil }
+      expect(result).to equal(ok)
+    end
+  end
+
+  describe "#tap_err" do
+    it "does not execute the block" do
+      called = false
+      ok.tap_err { |_e| called = true }
+      expect(called).to be false
+    end
+
+    it "returns self" do
+      result = ok.tap_err { |_e| nil }
+      expect(result).to equal(ok)
+    end
+  end
+
+  describe "#filter" do
+    it "returns self when predicate passes" do
+      result = ok.filter(-> { "too small" }) { |v| v > 0 }
+      expect(result).to equal(ok)
+    end
+
+    it "returns Err when predicate fails" do
+      result = ok.filter(-> { "must be negative" }) { |v| v < 0 }
+      expect(result).to eq(Philiprehberger::Result::Err.new("must be negative"))
     end
   end
 
@@ -204,6 +267,41 @@ RSpec.describe Philiprehberger::Result::Err do
     it "transforms the error" do
       result = err.map_err(&:upcase)
       expect(result).to eq(described_class.new("NOT FOUND"))
+    end
+  end
+
+  describe "#tap_ok" do
+    it "does not execute the block" do
+      called = false
+      err.tap_ok { |_v| called = true }
+      expect(called).to be false
+    end
+
+    it "returns self" do
+      result = err.tap_ok { |_v| nil }
+      expect(result).to equal(err)
+    end
+  end
+
+  describe "#tap_err" do
+    it "executes the block with the error" do
+      tapped = nil
+      err.tap_err { |e| tapped = e }
+      expect(tapped).to eq("not found")
+    end
+
+    it "returns self" do
+      result = err.tap_err { |_e| nil }
+      expect(result).to equal(err)
+    end
+  end
+
+  describe "#filter" do
+    it "returns self without evaluating the predicate" do
+      called = false
+      result = err.filter(-> { "unused" }) { |_v| called = true }
+      expect(result).to equal(err)
+      expect(called).to be false
     end
   end
 

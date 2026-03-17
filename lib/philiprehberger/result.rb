@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "result/version"
+require_relative "result/tappable"
+require_relative "result/filterable"
 require_relative "result/ok"
 require_relative "result/err"
 
@@ -33,6 +35,20 @@ module Philiprehberger
       Ok.new(block.call)
     rescue *exceptions => e
       Err.new(e)
+    end
+
+    # Combine an array of results into a single result.
+    #
+    # @param results [Array<Ok, Err>] the results to combine
+    # @return [Ok, Err] Ok with array of values, or Err with first error
+    def self.all(results)
+      values = []
+      results.each do |result|
+        return result if result.err?
+
+        values << result.value
+      end
+      Ok.new(values)
     end
   end
 end

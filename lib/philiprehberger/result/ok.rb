@@ -4,6 +4,9 @@ module Philiprehberger
   module Result
     # Represents a successful result containing a value.
     class Ok
+      include Tappable
+      include Filterable
+
       attr_reader :value
 
       # @param value the success value
