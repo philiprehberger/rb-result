@@ -3,6 +3,7 @@
 [![Tests](https://github.com/philiprehberger/rb-result/actions/workflows/ci.yml/badge.svg)](https://github.com/philiprehberger/rb-result/actions/workflows/ci.yml)
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-result.svg)](https://rubygems.org/gems/philiprehberger-result)
 [![License](https://img.shields.io/github/license/philiprehberger/rb-result)](LICENSE)
+[![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ec6cb9)](https://github.com/sponsors/philiprehberger)
 
 Result type with Ok/Err, map, flat_map, and pattern matching
 
@@ -190,4 +191,4 @@ bundle exec rubocop
 
 ## License
 
-MIT
+[MIT](LICENSE)
