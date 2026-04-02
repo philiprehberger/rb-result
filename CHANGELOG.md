@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-04-01
+
+### Added
+- `Result.any(results)` returning first Ok or Err with all errors
+- `#zip(other)` for combining two Ok results into `Ok([a, b])`
+- `#recover(error_class)` for typed error recovery on Err
+
 ## [0.3.7] - 2026-03-31
 
 ### Added
