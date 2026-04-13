@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-04-12
+
+### Added
+- `unwrap_err!` method on Ok (raises) and Err (returns error) for symmetric unwrapping
+- `Result.flatten(result)` class method to flatten nested Result types
+- `map_or(default, &block)` method to map with a fallback for Err
+
+### Fixed
+- Fix duplicate `[0.3.1]` entry in CHANGELOG
+
 ## [0.4.0] - 2026-04-01
 
 ### Added
@@ -49,8 +59,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Update rubocop configuration for Windows compatibility
-
-## [0.3.1] - 2026-03-21
 
 ### Fixed
 - Standardize Installation section in README

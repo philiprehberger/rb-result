@@ -48,6 +48,13 @@ module Philiprehberger
       # @raise never
       def unwrap! = @value
 
+      # Raise because Ok has no error to unwrap.
+      #
+      # @raise [UnwrapError] always
+      def unwrap_err!
+        raise UnwrapError, "Called unwrap_err! on Ok(#{@value.inspect})"
+      end
+
       # Ignore the error transformation.
       #
       # @return [Ok] self
@@ -70,6 +77,15 @@ module Philiprehberger
         return other if other.err?
 
         Result.ok([@value, other.instance_variable_get(:@value)])
+      end
+
+      # Map the value with a fallback for Err.
+      #
+      # @param _default ignored
+      # @yield [value] the current value
+      # @return the result of the block
+      def map_or(_default, &block)
+        block.call(@value)
       end
 
       # Recovery is a no-op on Ok

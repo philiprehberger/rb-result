@@ -282,6 +282,26 @@ RSpec.describe Philiprehberger::Result::Ok do
     end
   end
 
+  describe '#unwrap_err!' do
+    it 'raises UnwrapError' do
+      expect { ok.unwrap_err! }.to raise_error(Philiprehberger::Result::UnwrapError)
+    end
+
+    it 'includes the value in the exception message' do
+      expect { ok.unwrap_err! }.to raise_error(/42/)
+    end
+  end
+
+  describe '#map_or' do
+    it 'applies the block to the value' do
+      expect(ok.map_or(0) { |v| v * 2 }).to eq(84)
+    end
+
+    it 'ignores the default' do
+      expect(ok.map_or('default') { |v| v }).to eq(42)
+    end
+  end
+
   describe '#flat_map returning Err' do
     it 'converts Ok to Err when flat_map block returns Err' do
       result = ok.flat_map { |_v| Philiprehberger::Result::Err.new('went wrong') }
@@ -477,6 +497,18 @@ RSpec.describe Philiprehberger::Result::Err do
     end
   end
 
+  describe '#unwrap_err!' do
+    it 'returns the error value' do
+      expect(err.unwrap_err!).to eq('not found')
+    end
+  end
+
+  describe '#map_or' do
+    it 'returns the default' do
+      expect(err.map_or(0) { |v| v * 2 }).to eq(0)
+    end
+  end
+
   describe '#or_else chaining' do
     it 'chains multiple or_else calls until recovery succeeds' do
       result = err
@@ -570,6 +602,30 @@ end
 end
 
 RSpec.describe Philiprehberger::Result do
+  describe '.flatten' do
+    it 'flattens Ok(Ok(v)) to Ok(v)' do
+      nested = described_class.ok(described_class.ok(42))
+      result = described_class.flatten(nested)
+      expect(result).to eq(Philiprehberger::Result::Ok.new(42))
+    end
+
+    it 'flattens Ok(Err(e)) to Err(e)' do
+      nested = described_class.ok(described_class.err('fail'))
+      result = described_class.flatten(nested)
+      expect(result).to eq(Philiprehberger::Result::Err.new('fail'))
+    end
+
+    it 'passes through Err unchanged' do
+      err = described_class.err('fail')
+      expect(described_class.flatten(err)).to equal(err)
+    end
+
+    it 'returns non-nested Ok unchanged' do
+      ok = described_class.ok(42)
+      expect(described_class.flatten(ok)).to equal(ok)
+    end
+  end
+
   describe '.any' do
     it 'returns the first Ok' do
       results = [described_class.err('a'), described_class.ok(1), described_class.ok(2)]

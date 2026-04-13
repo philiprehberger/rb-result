@@ -161,6 +161,16 @@ b = Result.ok(2)
 a.zip(b).unwrap!  # => [1, 2]
 ```
 
+### Flattening
+
+```ruby
+nested = Philiprehberger::Result.ok(Philiprehberger::Result.ok(42))
+Philiprehberger::Result.flatten(nested).unwrap!  # => 42
+
+nested = Philiprehberger::Result.ok(Philiprehberger::Result.err("fail"))
+Philiprehberger::Result.flatten(nested).err?     # => true
+```
+
 ### Typed Recovery
 
 ```ruby
@@ -204,6 +214,10 @@ end
 | `Result.any(results)` | First Ok, or Err with all errors |
 | `#zip(other)` | Combine two Ok results into Ok([a, b]) |
 | `#recover(error_class) { block }` | Recover from specific error types |
+| `Ok#unwrap_err!` | Raise UnwrapError (no error to extract) |
+| `Err#unwrap_err!` | Return the error value |
+| `Result.flatten(result)` | Flatten nested Result (Ok(Ok(v)) to Ok(v)) |
+| `#map_or(default) { \|v\| ... }` | Map value with fallback for Err |
 | `#to_h` | Serialize to `{ ok: value }` or `{ err: error }` |
 
 ## Development
