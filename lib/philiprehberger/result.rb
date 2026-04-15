@@ -70,5 +70,22 @@ module Philiprehberger
       results.each { |r| return r if r.ok? }
       err(results.select(&:err?).map { |r| r.instance_variable_get(:@error) })
     end
+
+    # Split an array of results into success values and error values.
+    #
+    # @param results [Array<Ok, Err>] results to partition
+    # @return [Array(Array, Array)] two-element array: [ok_values, err_values]
+    def self.partition(results)
+      values = []
+      errors = []
+      results.each do |result|
+        if result.ok?
+          values << result.value
+        else
+          errors << result.instance_variable_get(:@error)
+        end
+      end
+      [values, errors]
+    end
   end
 end

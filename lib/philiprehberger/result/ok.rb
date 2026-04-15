@@ -93,6 +93,29 @@ module Philiprehberger
         self
       end
 
+      # Convert to a Maybe-like value: the success value, or nil for Err.
+      #
+      # @return the success value
+      def to_maybe
+        @value
+      end
+
+      # Check whether this Ok contains the given value (using ==).
+      #
+      # @param other the value to compare against
+      # @return [Boolean] true if the value equals other
+      def contains?(other)
+        @value == other
+      end
+
+      # Always false on Ok (there is no error to compare).
+      #
+      # @param _other ignored
+      # @return [Boolean] false
+      def contains_err?(_other)
+        false
+      end
+
       # Serialize to a hash.
       #
       # @return [Hash]

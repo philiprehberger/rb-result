@@ -95,6 +95,29 @@ module Philiprehberger
         Result.err(e)
       end
 
+      # Convert to a Maybe-like value: the success value, or nil for Err.
+      #
+      # @return [nil] always
+      def to_maybe
+        nil
+      end
+
+      # Always false on Err (there is no value to compare).
+      #
+      # @param _other ignored
+      # @return [Boolean] false
+      def contains?(_other)
+        false
+      end
+
+      # Check whether this Err contains the given error (using ==).
+      #
+      # @param other the error to compare against
+      # @return [Boolean] true if the error equals other
+      def contains_err?(other)
+        @error == other
+      end
+
       # Serialize to a hash.
       #
       # @return [Hash]
