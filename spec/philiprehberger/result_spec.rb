@@ -688,4 +688,99 @@ RSpec.describe Philiprehberger::Result do
       expect(result.ok?).to be true
     end
   end
+
+  describe '#to_maybe' do
+    it 'returns the value for Ok' do
+      expect(described_class.ok(42).to_maybe).to eq(42)
+    end
+
+    it 'returns nil for Err' do
+      expect(described_class.err('fail').to_maybe).to be_nil
+    end
+
+    it 'returns nil for Ok(nil) (indistinguishable from Err — expected tradeoff)' do
+      expect(described_class.ok(nil).to_maybe).to be_nil
+    end
+
+    it 'returns nil regardless of error type' do
+      expect(described_class.err(StandardError.new('boom')).to_maybe).to be_nil
+    end
+  end
+
+  describe '#contains?' do
+    it 'returns true when Ok value matches' do
+      expect(described_class.ok(42).contains?(42)).to be true
+    end
+
+    it 'returns false when Ok value does not match' do
+      expect(described_class.ok(42).contains?(99)).to be false
+    end
+
+    it 'returns false for Err regardless of argument' do
+      expect(described_class.err('fail').contains?('fail')).to be false
+      expect(described_class.err(42).contains?(42)).to be false
+    end
+
+    it 'uses == for comparison (matches strings by value)' do
+      expect(described_class.ok('hello').contains?('hello')).to be true
+    end
+
+    it 'matches nil in Ok(nil)' do
+      expect(described_class.ok(nil).contains?(nil)).to be true
+    end
+  end
+
+  describe '#contains_err?' do
+    it 'returns true when Err error matches' do
+      expect(described_class.err('fail').contains_err?('fail')).to be true
+    end
+
+    it 'returns false when Err error does not match' do
+      expect(described_class.err('fail').contains_err?('other')).to be false
+    end
+
+    it 'returns false for Ok regardless of argument' do
+      expect(described_class.ok(42).contains_err?(42)).to be false
+      expect(described_class.ok('x').contains_err?('x')).to be false
+    end
+
+    it 'matches nil in Err(nil)' do
+      expect(described_class.err(nil).contains_err?(nil)).to be true
+    end
+  end
+
+  describe '.partition' do
+    it 'splits an array of results into values and errors' do
+      results = [described_class.ok(1), described_class.err('a'), described_class.ok(2), described_class.err('b')]
+      values, errors = described_class.partition(results)
+      expect(values).to eq([1, 2])
+      expect(errors).to eq(%w[a b])
+    end
+
+    it 'returns empty arrays for empty input' do
+      expect(described_class.partition([])).to eq([[], []])
+    end
+
+    it 'returns all values and empty errors when all Ok' do
+      results = [described_class.ok(1), described_class.ok(2)]
+      expect(described_class.partition(results)).to eq([[1, 2], []])
+    end
+
+    it 'returns empty values and all errors when all Err' do
+      results = [described_class.err('a'), described_class.err('b')]
+      expect(described_class.partition(results)).to eq([[], %w[a b]])
+    end
+
+    it 'preserves order of values and errors' do
+      results = [
+        described_class.err('first'),
+        described_class.ok(1),
+        described_class.err('second'),
+        described_class.ok(2)
+      ]
+      values, errors = described_class.partition(results)
+      expect(values).to eq([1, 2])
+      expect(errors).to eq(%w[first second])
+    end
+  end
 end

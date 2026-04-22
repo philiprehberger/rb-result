@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-04-15
+
+### Added
+- `#to_maybe` method on Ok (returns value) and Err (returns nil) for Maybe-style extraction
+- `#contains?(value)` predicate to test whether an Ok holds a specific value
+- `#contains_err?(error)` predicate to test whether an Err holds a specific error
+- `Result.partition(results)` class method splitting an array of results into `[ok_values, err_values]`
+
 ## [0.5.0] - 2026-04-12
 
 ### Added
@@ -101,3 +109,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `unwrap!` and `unwrap_or` value extraction
 - `Result.try` for exception-safe wrapping
 - Ruby 3.1+ pattern matching support (`deconstruct`, `deconstruct_keys`)
+
+[Unreleased]: https://github.com/philiprehberger/rb-result/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/philiprehberger/rb-result/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/philiprehberger/rb-result/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/philiprehberger/rb-result/compare/v0.3.7...v0.4.0
+[0.3.7]: https://github.com/philiprehberger/rb-result/compare/v0.3.6...v0.3.7
+[0.3.6]: https://github.com/philiprehberger/rb-result/compare/v0.3.5...v0.3.6
+[0.3.5]: https://github.com/philiprehberger/rb-result/compare/v0.3.4...v0.3.5
+[0.3.4]: https://github.com/philiprehberger/rb-result/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/philiprehberger/rb-result/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/philiprehberger/rb-result/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/philiprehberger/rb-result/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/philiprehberger/rb-result/compare/v0.2.2...v0.3.0
+[0.2.2]: https://github.com/philiprehberger/rb-result/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/philiprehberger/rb-result/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/philiprehberger/rb-result/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/philiprehberger/rb-result/releases/tag/v0.1.0

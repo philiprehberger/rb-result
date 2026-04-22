@@ -179,6 +179,46 @@ Result.err(ArgumentError.new("bad"))
   .unwrap!  # => "default"
 ```
 
+### Maybe Conversion
+
+```ruby
+# Extract the value, collapsing Err to nil
+Philiprehberger::Result.ok(42).to_maybe   # => 42
+Philiprehberger::Result.err("fail").to_maybe # => nil
+
+# Note: Ok(nil) and Err(anything) both return nil
+Philiprehberger::Result.ok(nil).to_maybe  # => nil
+```
+
+### Containment Checks
+
+```ruby
+# Test whether an Ok holds a specific value
+Philiprehberger::Result.ok(42).contains?(42)      # => true
+Philiprehberger::Result.ok(42).contains?(99)      # => false
+Philiprehberger::Result.err("fail").contains?(42) # => false
+
+# Test whether an Err holds a specific error
+Philiprehberger::Result.err("fail").contains_err?("fail")  # => true
+Philiprehberger::Result.err("fail").contains_err?("other") # => false
+Philiprehberger::Result.ok(42).contains_err?("fail")       # => false
+```
+
+### Partitioning Results
+
+```ruby
+results = [
+  Philiprehberger::Result.ok(1),
+  Philiprehberger::Result.err("a"),
+  Philiprehberger::Result.ok(2),
+  Philiprehberger::Result.err("b")
+]
+
+values, errors = Philiprehberger::Result.partition(results)
+# values => [1, 2]
+# errors => ["a", "b"]
+```
+
 ### Pattern Matching
 
 ```ruby
@@ -219,6 +259,10 @@ end
 | `Result.flatten(result)` | Flatten nested Result (Ok(Ok(v)) to Ok(v)) |
 | `#map_or(default) { \|v\| ... }` | Map value with fallback for Err |
 | `#to_h` | Serialize to `{ ok: value }` or `{ err: error }` |
+| `#to_maybe` | Return the value on Ok, nil on Err |
+| `#contains?(value)` | Return true if Ok equals value |
+| `#contains_err?(error)` | Return true if Err equals error |
+| `Result.partition(results)` | Split into `[ok_values, err_values]` arrays |
 
 ## Development
 
