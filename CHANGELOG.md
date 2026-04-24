@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-04-23
+
+### Added
+- `#unwrap_or_else(&block)` on Ok (returns the value) and Err (yields the error to the block and returns its result) — lets a fallback be computed from the error, complementing `unwrap_or(default)`
+
 ## [0.6.0] - 2026-04-15
 
 ### Added

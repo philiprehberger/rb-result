@@ -60,6 +60,10 @@ ok.unwrap_or(0)     # => 42
 err = Philiprehberger::Result.err("fail")
 err.unwrap_or(0)    # => 0
 err.unwrap!         # raises UnwrapError
+
+# Compute a fallback from the error:
+err.unwrap_or_else { |e| "recovered from #{e}" }  # => "recovered from fail"
+ok.unwrap_or_else  { |e| "recovered from #{e}" }  # => 42
 ```
 
 ### Exception-safe wrapping
@@ -242,12 +246,14 @@ end
 | `Ok#flat_map { \|v\| ... }` | Chain a result-returning operation |
 | `Ok#unwrap!` | Return the value |
 | `Ok#unwrap_or(default)` | Return the value (ignores default) |
+| `Ok#unwrap_or_else { \|e\| ... }` | Return the value (block is ignored) |
 | `#tap_ok { \|v\| ... }` | Side-effect on Ok value, returns self |
 | `#tap_err { \|e\| ... }` | Side-effect on Err value, returns self |
 | `#filter(error_fn) { \|v\| ... }` | Convert Ok to Err if predicate fails |
 | `Err#map_err { \|e\| ... }` | Transform the error value |
 | `Err#unwrap!` | Raise UnwrapError |
 | `Err#unwrap_or(default)` | Return the default |
+| `Err#unwrap_or_else { \|e\| ... }` | Call block with the error and return its result |
 | `Ok#or_else { \|e\| ... }` | Return self (no-op on Ok) |
 | `Err#or_else { \|e\| ... }` | Call block with error for recovery |
 | `#and_then { \|v\| ... }` | Alias for `flat_map` |

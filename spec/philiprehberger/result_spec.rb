@@ -130,6 +130,18 @@ RSpec.describe Philiprehberger::Result::Ok do
     end
   end
 
+  describe '#unwrap_or_else' do
+    it 'returns the value and ignores the block' do
+      called = false
+      result = ok.unwrap_or_else do
+        called = true
+        99
+      end
+      expect(result).to eq(42)
+      expect(called).to be false
+    end
+  end
+
   describe '#map_err' do
     it 'returns self' do
       expect(ok.map_err { |e| e }).to equal(ok)
@@ -359,6 +371,18 @@ RSpec.describe Philiprehberger::Result::Err do
   describe '#unwrap_or' do
     it 'returns the default' do
       expect(err.unwrap_or(0)).to eq(0)
+    end
+  end
+
+  describe '#unwrap_or_else' do
+    it 'yields the error to the block and returns its result' do
+      captured = nil
+      result = err.unwrap_or_else do |e|
+        captured = e
+        "recovered: #{e}"
+      end
+      expect(captured).to eq('not found')
+      expect(result).to eq('recovered: not found')
     end
   end
 

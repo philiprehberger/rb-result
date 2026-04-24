@@ -42,6 +42,13 @@ module Philiprehberger
       # @return the success value
       def unwrap_or(_default) = @value
 
+      # Return the value; the block is ignored because there is no error.
+      #
+      # @return the success value
+      def unwrap_or_else
+        @value
+      end
+
       # Return the value.
       #
       # @return the success value

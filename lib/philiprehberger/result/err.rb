@@ -40,6 +40,14 @@ module Philiprehberger
       # @return the default value
       def unwrap_or(default) = default
 
+      # Compute a fallback value from the error.
+      #
+      # @yield [error] the current error
+      # @return the block's return value
+      def unwrap_or_else(&block)
+        block.call(@error)
+      end
+
       # Raise because there is no success value.
       #
       # @raise [UnwrapError] always
